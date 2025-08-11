@@ -1,0 +1,58 @@
+# Visual Studio user-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+ipch/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+# CMake build folders (if used with VS)
+[Cc]MakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+build/
+
+# Backup and temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Debug and Release folders
+[Dd]ebug*/
+[Rr]elease*/
+x64/
+x86/
+[Aa][Rr][Mm]*/
+[Aa][Rr][Mm]64/
+
+# Generated files
+*.obj
+*.exe
+*.dll
+*.lib
+*.pdb
+*.idb
+*.ilk
+
+# Profiling files
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# Other
+.vs/
