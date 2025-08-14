@@ -1,6 +1,6 @@
 # Space Simulations
 
-A C++-based space simulation project visualizing the gravitational effects of a black hole.  
+A C++ based space simulation project visualizing the gravitational effects of a black hole.  
 Currently, the simulation renders a **2D gravitational lensing** effect, with ongoing development for a **3D black hole simulation**.
 In the future I am planning on adding more elements such as: 3D simulation, thruster simulation, ...
 
