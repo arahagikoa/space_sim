@@ -37,10 +37,30 @@ black_hole-3D/
 ---
 
 ## Requirements
+You’ll need:
 - C++17 or newer
-- A compiler such as `g++` or `clang++`
-- OpenGL for visualization, depending on your setup
+- [CMake](https://cmake.org/download/)
+- [vcpkg](https://github.com/microsoft/vcpkg)
 
+---
+
+## Installing Dependencies with vcpkg
+
+1. **Clone vcpkg** (if not already installed):
+   ```bash
+   git clone https://github.com/microsoft/vcpkg.git
+   cd vcpkg
+   ./bootstrap-vcpkg.sh      # Linux/macOS
+   .\bootstrap-vcpkg.bat     # Windows
+   ```
+2. **Install required libraries**:
+   ```bash
+   ./vcpkg install glew glfw3 glm
+   ```
+3.  **Integrate vcpkg with CMake**:
+   ```bash
+   ./vcpkg integrate install
+   ``` 
 ---
 
 ## Building & Running
@@ -50,14 +70,22 @@ black_hole-3D/
    cd black_hole/
    ```
 
-2. Compile the simulation:
+2. Create a build folder:
 
    ```bash
-   g++ -std=c++17 main.cpp engine.cpp black_hole.cpp ray.cpp \
-    -lGLEW -lglfw -lGL -o black_hole_sim
+    mkdir build
+    cd build
    ```
-3. Run:
+3. Run CMake:
 
+   ```bash
+   cmake .. -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
+   ```
+4. Build:
+   ```bash
+   cmake --build .
+   ```
+5. Run:
    ```bash
    ./black_hole_sim
    ```
