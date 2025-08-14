@@ -3,6 +3,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.sln
 
 # Build results
 [Bb]in/
