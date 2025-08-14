@@ -19,7 +19,7 @@ In the future I am planning on adding more elements such as: 3D simulation, thru
 ## Project Structure
 ```
 
-black\_hole-3D/
+black_hole/
 -- black\_hole/
 -- black\_hole.cpp      # Black hole physics & rendering logic
 -- black\_hole.h
@@ -28,9 +28,10 @@ black\_hole-3D/
 -- main.cpp            # Entry point of the program
 -- ray.cpp             # Light ray behavior and calculations
 -- ray.h
--- .gitignore
---- README.md
+black_hole-3D/
 
+- .gitignore
+- README.md
 ```
 
 ---
@@ -47,7 +48,7 @@ black\_hole-3D/
    ```bash
    git clone https://github.com/arahagikoa/space_sim/.git
    cd black_hole/
-```
+   ```
 
 2. Compile the simulation:
 
