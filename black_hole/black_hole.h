@@ -14,22 +14,22 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-
-#ifndef PLANCK_LEN
-#define PLANCK_LEN 1.616255e-35
+#ifndef C_VEL
+#define C_VEL 299792458.0
 #endif
 
 class BlackHole {
 public:
-    BlackHole(float x, float y, float m);
-    void drawCircle(GLuint shaderProgram);
-private:
-    glm::vec2 pos;
     float M;
     float r_s;
 
-    GLuint VAO = 0;
-    GLuint VBO = 0;
+    BlackHole(float x, float y, float m);
+    void drawCircle(GLuint shaderProgram);
+
+private:
+    glm::vec2 pos;
+
+    GLuint VAO, VBO;
     int vertexCount = 0;
 
     void setupCircle();

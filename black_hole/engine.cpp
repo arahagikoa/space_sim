@@ -68,11 +68,11 @@ GLuint Engine::CreateShaderProgram() {
             layout (location = 0) in vec2 aPos;
 
             void main() {
-                float x = aPos.x / (1000.0 / 2.0) - 1.0;
-                float y = aPos.y / (900.0 / 2.0) - 1.0;
+                float x = aPos.x / (800.0 / 2.0) - 1.0;
+                float y = aPos.y / (600.0 / 2.0) - 1.0;
                 gl_Position = vec4(x, y, 0.0, 1.0);
 
-                gl_PointSize = 4.5;
+                gl_PointSize = 1.0;
             }
         )";
 
@@ -80,7 +80,7 @@ GLuint Engine::CreateShaderProgram() {
             #version 330 core
             out vec4 FragColor;
             uniform vec3 uColor;
-            uniform vec4 uColor;
+
             void main() {
                 FragColor = vec4(uColor, 1.0);
             }
@@ -91,7 +91,6 @@ GLuint Engine::CreateShaderProgram() {
         glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
         glCompileShader(vertexShader);
 
-        // fragment shader
         GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
         glCompileShader(fragmentShader);

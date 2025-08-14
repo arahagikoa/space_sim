@@ -21,14 +21,19 @@ class Ray {
 		glm::vec2 dir;
 		double x;
 		double y;
+		double r, phi;
+		double dr, dphi;
+		double d2r, d2phi;
+		double E, L;
+
 		std::vector<glm::vec2> trail;
 
-		GLuint VAO = 0;
-		GLuint VBO = 0;
+		GLuint VAO_point, VBO_point;
+		GLuint VAO_trail, VBO_trail;
 
-		Ray(glm::vec2 pos, glm::vec2 dir);
+		Ray(glm::vec2 pos, glm::vec2 dir, double r_s);
 		void draw_ray(GLuint shaderProgram);
-		void step();
+		void step(double r_s, double dlambda);
 
 
 };
