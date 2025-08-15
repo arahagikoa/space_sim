@@ -9,6 +9,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <fstream>
+#include <iostream>
+
 
 class Engine {
 
@@ -18,6 +21,9 @@ public:
 
 	GLFWwindow* window;
 	GLuint shaderProgram;
+
+	std::string fragmentShaderSourceFile = "./shaders/bh.frag";
+	std::string vertexShaderSourceFile = "./shaders/bh.vert";
 
 	Engine(int width, int height) {
 		WIDTH = width;
@@ -31,7 +37,8 @@ public:
 	void render();
 	void cleanup();
 	GLuint CreateShaderProgram();
+	std::string laodShaderFile(const std::string& shaderSource);
+	GLuint createShaderProgram();
 
 };
-
 #endif // !ENGINE_H

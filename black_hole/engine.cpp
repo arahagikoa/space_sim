@@ -62,46 +62,49 @@ void Engine::cleanup() {
 
 }
 
-GLuint Engine::CreateShaderProgram() {
-        const char* vertexShaderSource = R"(
-            #version 330 core
-            layout (location = 0) in vec2 aPos;
 
-            void main() {
-                float x = aPos.x / (800.0 / 2.0) - 1.0;
-                float y = aPos.y / (600.0 / 2.0) - 1.0;
-                gl_Position = vec4(x, y, 0.0, 1.0);
+std::string Engine::loadShaderFile(const std::string& shaderSource){
+    std::string result = "";
+    std::string line = "";
+    std::ifstream file(shaderSource.c_str());
 
-                gl_PointSize = 1.0;
-            }
-        )";
+    if (file.is_open()){
+        while(std::getline(file, line)){
+            result += line + '\n';
+        }
 
-        const char* fragmentShaderSource = R"(
-            #version 330 core
-            out vec4 FragColor;
-            uniform vec3 uColor;
+        file.close();
+    }
 
-            void main() {
-                FragColor = vec4(uColor, 1.0);
-            }
-        )";
+    return result;
+}
 
 
-        GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-        glCompileShader(vertexShader);
+GLuint Engine::CreateShaderProgram(){
+    std::string fragmentShaderSource = loadShaderFile(this->fragmentShaderSourceFile);
+    std::string vertexShaderSource   = loadShaderFile(this->vertexShaderSourceFile);
 
-        GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-        glCompileShader(fragmentShader);
+    //std::cout << "fragment shader" << fragmentShaderSource << std::endl;
+    //std::cout << "vertex shader" << vertexShaderSource << std::endl;
+    
+    const GLchar* vertexSourcePtr   = vertexShaderSource.c_str();
+    const GLchar* fragmentSourcePtr = fragmentShaderSource.c_str();
 
-        GLuint shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vertexShader);
-        glAttachShader(shaderProgram, fragmentShader);
-        glLinkProgram(shaderProgram);
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexSourcePtr, nullptr);
+    glCompileShader(vertexShader);
 
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentSourcePtr, nullptr);
+    glCompileShader(fragmentShader);
 
-        return shaderProgram;
- }
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    return shaderProgram;
+}

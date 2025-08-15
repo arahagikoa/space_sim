@@ -24,8 +24,9 @@ void addState(const double a[4], const double b[4], double factor, double out[4]
 void rk4step(Ray& ray, double dlambda, const std::vector<BlackHole>& bhs);
 
 int WIDTH = 800;
-int HEIGHT = 600;
+int HEIGHT = 800;
 std::vector<Ray> rays;
+
 
 void geodesic(Ray& ray, double rhs[4], const std::vector<BlackHole>& bhs) {
     double r = ray.r;
@@ -36,7 +37,7 @@ void geodesic(Ray& ray, double rhs[4], const std::vector<BlackHole>& bhs) {
 
     double f_total = 1.0;
     for (auto& bh : bhs) {
-        f_total *= (1.0 - bh.r_s / r); // naive multiplicative effect
+        f_total *= (1.0 - bh.r_s / r);
     }
 
     rhs[0] = dr;
@@ -87,15 +88,42 @@ void rk4step(Ray& ray, double dlambda, const std::vector<BlackHole>& bhs) {
     ray.dphi = y0[3];
 }
 
+bool leftMousePressed = false;
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS)
+            leftMousePressed = true;
+        else if (action == GLFW_RELEASE)
+            leftMousePressed = false;
+    }
+}
+
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
+    if (leftMousePressed) // now this works correctly
+    {
+        glm::vec2 startPos = {xpos, ypos};
+        glm::vec2 velocity = {1.0f, 0.0f};
+
+        std::cout << "Mouse drag at: " << startPos.x << ", " << startPos.y << std::endl;
+
+        rays.push_back(Ray(startPos, velocity, 59));
+    }
+}
+
+
 int main() {
     Engine engine(WIDTH, HEIGHT);
 
     if (!engine.init()) return -1;
     engine.shaderProgram = engine.CreateShaderProgram();
 
-    BlackHole bh(engine.WIDTH / 2.0f, engine.HEIGHT / 2.0f, 4.0e28);
-    BlackHole bh2(engine.WIDTH / 1.0f, engine.HEIGHT / 2.0f, 4.0e28);
+    glfwSetCursorPosCallback(engine.window, cursor_position_callback);
+    glfwSetMouseButtonCallback(engine.window, mouse_button_callback);
 
+
+
+    BlackHole bh(0.0, 0.0, 1.0e26);
 
     double dlambda = 1;
     for (int i = 0; i < 600; i += 30) {
@@ -109,28 +137,14 @@ int main() {
             0.0f
         );
 
-        rays.push_back(Ray(startPos, velocity, bh.r_s));
-    }
-    for (int i = 0; i < 600; i += 50) {
-        glm::vec2 startPos = glm::vec2(
-            i,
-            0
-        );
-
-        glm::vec2 velocity = glm::vec2(
-            2.0f,
-            2.0f
-        );
-
         //rays.push_back(Ray(startPos, velocity, bh.r_s));
     }
-
 
     while (!glfwWindowShouldClose(engine.window)) {
         engine.run();
 
         bh.drawCircle(engine.shaderProgram);
-       // bh2.drawCircle(engine.shaderProgram);
+
         std::vector<BlackHole> blackHoles = { bh };
         for (auto& ray : rays) {
            
