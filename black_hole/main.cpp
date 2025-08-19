@@ -5,7 +5,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 #include <iostream>
+
+
 #define _USE_MATH_DEFINES
+
+
 #include <cmath>
 #include <sstream>
 #include <iomanip>
@@ -18,14 +22,17 @@
 #include "ray.h"
 
 using Clock = std::chrono::high_resolution_clock;
+double r_s = 0.0f;
+
 
 void geodesic(Ray& ray, double rhs[4], const std::vector<BlackHole>& bhs);
 void addState(const double a[4], const double b[4], double factor, double out[4]);
 void rk4step(Ray& ray, double dlambda, const std::vector<BlackHole>& bhs);
 
 int WIDTH = 800;
-int HEIGHT = 600;
+int HEIGHT = 800;
 std::vector<Ray> rays;
+
 
 void geodesic(Ray& ray, double rhs[4], const std::vector<BlackHole>& bhs) {
     double r = ray.r;
@@ -36,7 +43,7 @@ void geodesic(Ray& ray, double rhs[4], const std::vector<BlackHole>& bhs) {
 
     double f_total = 1.0;
     for (auto& bh : bhs) {
-        f_total *= (1.0 - bh.r_s / r); // naive multiplicative effect
+        f_total *= (1.0 - bh.r_s / r);
     }
 
     rhs[0] = dr;
@@ -87,50 +94,84 @@ void rk4step(Ray& ray, double dlambda, const std::vector<BlackHole>& bhs) {
     ray.dphi = y0[3];
 }
 
+bool leftMousePressed = false;
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
+    double xpos, ypos;
+    double ray_xpos, ray_ypos;
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS) {
+            leftMousePressed = true;
+        }
+   
+        else if (action == GLFW_RELEASE) {
+            glfwGetCursorPos(window, &xpos, &ypos);
+
+
+            ray_xpos = (xpos - (WIDTH / 2.0f)) / (WIDTH / 2.0f);
+            ray_ypos = -(ypos - (HEIGHT / 2.0f)) / (HEIGHT / 2.0f);
+
+            leftMousePressed = false;
+            glm::vec2 startPos = glm::vec2(
+                ray_xpos,
+                ray_ypos
+            );
+
+            glm::vec2 velocity = glm::vec2(
+                0.1f,
+                0.0f
+            );
+
+            rays.push_back(Ray(startPos, velocity, r_s));
+            if (rays.size() > 20) {
+                rays.erase(rays.begin());
+
+            }
+        }
+           
+
+    }
+}
+
+
 int main() {
     Engine engine(WIDTH, HEIGHT);
 
     if (!engine.init()) return -1;
     engine.shaderProgram = engine.CreateShaderProgram();
 
-    BlackHole bh(engine.WIDTH / 2.0f, engine.HEIGHT / 2.0f, 4.0e28);
-    BlackHole bh2(engine.WIDTH / 1.0f, engine.HEIGHT / 2.0f, 4.0e28);
+    //glfwSetCursorPosCallback(engine.window, cursor_position_callback);
+    glfwSetMouseButtonCallback(engine.window, mouse_button_callback);
 
 
-    double dlambda = 1;
-    for (int i = 0; i < 600; i += 30) {
+    BlackHole bh(0.0, 0.0, 1.0e26);
+    r_s = bh.r_s;
+
+    double dlambda = 0.1;
+    for (int i = 0; i < 10; i += 1) {
         glm::vec2 startPos = glm::vec2(
-            0,
-            i
+            -1,
+            i / 10.0f
         );
 
         glm::vec2 velocity = glm::vec2(
-            1.0f,
+            0.1f,
             0.0f
-        );
-
-        rays.push_back(Ray(startPos, velocity, bh.r_s));
-    }
-    for (int i = 0; i < 600; i += 50) {
-        glm::vec2 startPos = glm::vec2(
-            i,
-            0
-        );
-
-        glm::vec2 velocity = glm::vec2(
-            2.0f,
-            2.0f
         );
 
         //rays.push_back(Ray(startPos, velocity, bh.r_s));
     }
 
-
     while (!glfwWindowShouldClose(engine.window)) {
         engine.run();
-
+        //std::cout << "Left mou pressed   " << leftMousePressed << std::endl;
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);
         bh.drawCircle(engine.shaderProgram);
-       // bh2.drawCircle(engine.shaderProgram);
+        glEnable(GL_DEPTH_TEST);
+
         std::vector<BlackHole> blackHoles = { bh };
         for (auto& ray : rays) {
            

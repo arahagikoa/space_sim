@@ -105,3 +105,48 @@ GLuint Engine::CreateShaderProgram() {
 
     return shaderProgram;
 }
+
+
+std::string Engine::loadShaderFile(std::string& shaderSource){
+    std::string result = "";
+    std::string line = "";
+    std::ifstream file(shaderSource.c_str());
+
+    if (file.is_open()){
+        while(std::getline(file, line)){
+            result += line + '\n';
+        }
+
+        file.close();
+    }
+
+    return result;
+}
+
+
+GLuint createShaderProgram(){
+    std::string fragmentShaderSource; std::string vertexShaderSource;
+
+    fragmentShaderSource = loadShaderFile(this->fragmentShaderSourceFile);
+    vertexShaderSource = loadShaderFile(this->vertexShaderSourceFile);
+
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+    glCompileShader(vertexShader);
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+    glCompileShader(fragmentShader);
+
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    return shaderProgram;
+
+
+}

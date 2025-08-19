@@ -72,6 +72,4 @@ void Camera::process_mouse_buttons(int button, int action, int mods, GLFWwindow*
 			dragging = false;
 		}
 	}
-
-
 }
