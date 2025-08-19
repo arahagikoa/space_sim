@@ -23,7 +23,7 @@ Ray::Ray(glm::vec2 pos, glm::vec2 dir, double r_s) {
     double f = 1.0 - r_s / r;
     double dt_dlambda = sqrt((dr * dr) / (f * f) + (r * r * dphi * dphi) / f);
     E = f * dt_dlambda;
-    std::cout << "R ray  " << this->r << std::endl;
+    //std::cout << "R ray  " << this->r << std::endl;
     glGenVertexArrays(1, &VAO_point);
     glGenBuffers(1, &VBO_point);
     glBindVertexArray(VAO_point);
@@ -48,6 +48,7 @@ Ray::Ray(glm::vec2 pos, glm::vec2 dir, double r_s) {
 void Ray::draw_ray(GLuint shaderProgram) {
     glUseProgram(shaderProgram);
     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
+
     if (colorLoc != -1)
         glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f);
 
@@ -59,8 +60,9 @@ void Ray::draw_ray(GLuint shaderProgram) {
     glPointSize(3.0f);
     glDrawArrays(GL_POINTS, 0, 1);
     glBindVertexArray(0);
-
+    size_t N = trail.size();
     if (trail.size() < 2) return;
+
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

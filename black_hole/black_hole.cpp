@@ -58,9 +58,16 @@ void BlackHole::drawCircle(GLuint shaderProgram) {
     if (colorLoc == -1) {
         std::cerr << "uColor not found in shader\n";
     }
+
     else {
         glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f); // red
     }
+
+    GLint alphaLoc = glGetUniformLocation(shaderProgram, "uAlpha");
+    if (alphaLoc != -1)
+        glUniform1f(alphaLoc, 1.0f);
+
+
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLE_FAN, 0, vertexCount);
     glBindVertexArray(0);

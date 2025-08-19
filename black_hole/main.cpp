@@ -98,25 +98,20 @@ bool leftMousePressed = false;
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
     double xpos, ypos;
-   
+    double ray_xpos, ray_ypos;
+
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (action == GLFW_PRESS) {
             leftMousePressed = true;
         }
    
         else if (action == GLFW_RELEASE) {
-            std::cout << "HEEEEEEEEEEEEEEEERE" << std::endl;
             glfwGetCursorPos(window, &xpos, &ypos);
 
-            //std::cout << "X POS " << xpos << std::endl;
-            //std::cout << "Y POS " << ypos << std::endl;
-            double ray_xpos, ray_ypos;
 
-            ray_xpos = (xpos - 400.0f) / 400.0f;
-            ray_ypos = -(ypos - 400.0f) / 400.0f;
+            ray_xpos = (xpos - (WIDTH / 2.0f)) / (WIDTH / 2.0f);
+            ray_ypos = -(ypos - (HEIGHT / 2.0f)) / (HEIGHT / 2.0f);
 
-            //std::cout << "X POS " << ray_xpos << std::endl;
-            //std::cout << "Y POS " << ray_ypos << std::endl;
             leftMousePressed = false;
             glm::vec2 startPos = glm::vec2(
                 ray_xpos,
@@ -129,7 +124,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             );
 
             rays.push_back(Ray(startPos, velocity, r_s));
+            if (rays.size() > 20) {
+                rays.erase(rays.begin());
 
+            }
         }
            
 
