@@ -6,13 +6,13 @@ Ray::Ray(glm::vec2 pos, glm::vec2 dir, double r_s) {
     this->dir = dir;
 
     float centerX = 400.0f;
-    float centerY = 300.0f; 
+    float centerY = 400.0f; 
+    //std::cout << "X" << x << std::endl;
+    //std::cout << "Y" << y << std::endl;
 
-    float relX = x - centerX;
-    float relY = y - centerY;
-
-    this->r = std::sqrt(relX * relX + relY * relY);
-    this->phi = std::atan2(relY, relX);
+    double metersPerPixel = 1e-1; // same scale as BlackHole
+    this->r = std::sqrt(x * x + y * y);
+    this->phi = std::atan2(y, x);
 
     float cosP = cos(phi);
     float sinP = sin(phi);
@@ -23,7 +23,7 @@ Ray::Ray(glm::vec2 pos, glm::vec2 dir, double r_s) {
     double f = 1.0 - r_s / r;
     double dt_dlambda = sqrt((dr * dr) / (f * f) + (r * r * dphi * dphi) / f);
     E = f * dt_dlambda;
-
+    std::cout << "R ray  " << this->r << std::endl;
     glGenVertexArrays(1, &VAO_point);
     glGenBuffers(1, &VBO_point);
     glBindVertexArray(VAO_point);
@@ -49,7 +49,7 @@ void Ray::draw_ray(GLuint shaderProgram) {
     glUseProgram(shaderProgram);
     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
     if (colorLoc != -1)
-        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+        glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f);
 
 
     float pointPos[2] = { x, y };
@@ -73,16 +73,18 @@ void Ray::draw_ray(GLuint shaderProgram) {
 }
 
 void Ray::step(double r_s, double dlambda) {
+    //std::cout << "R_L" << this->r << std::endl;
     if (this->r <= r_s) {
         return;
     }
 
- 
     float centerX = 400.0f;
     float centerY = 300.0f;
 
-    x = centerX + r * cos(phi);
-    y = centerY + r * sin(phi);
+    x = 0.0 + r * cos(phi);
+    y = 0.0 + r * sin(phi);
+    // std::cout << "X" << x << std::endl;
+
 
     trail.push_back(glm::vec2(x, y));
     if (trail.size() > 500) {

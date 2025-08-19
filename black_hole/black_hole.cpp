@@ -4,17 +4,20 @@ BlackHole::BlackHole(float x, float y, float m) {
     pos.x = x;
     pos.y = y;
     M = m;
+
     double c = 299792458.0;
     double G = 6.67430e-11;
 
     r_s = 2.0 * G * m / (c * c);
+    //double scale = 2500;
+    // r_s *= scale;
 
     setupCircle();
 }
 
 void BlackHole::setupCircle() {
     std::vector<float> vertices;
-
+    
     vertices.push_back(pos.x);
     vertices.push_back(pos.y);
 
@@ -22,8 +25,13 @@ void BlackHole::setupCircle() {
 
     for (int i = 0; i <= segments; i++) {
         float angle = 2.0f * M_PI * i / segments;
-        float x = pos.x + cos(angle) * r_s; 
-        float y = pos.y + sin(angle) * r_s; 
+
+        float x = pos.x + cos(angle) * r_s;
+        float y = pos.y + sin(angle) * r_s;
+        //std::cout << "R_S" << r_s << std::endl;
+        //std::cout << "X" << x << std::endl;
+        //std::cout << "Y" << y<< std::endl;
+
         vertices.push_back(x);
         vertices.push_back(y);
     }
@@ -46,9 +54,13 @@ void BlackHole::setupCircle() {
 void BlackHole::drawCircle(GLuint shaderProgram) {
     glUseProgram(shaderProgram);
     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
-    if (colorLoc != -1)
-        glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f);
 
+    if (colorLoc == -1) {
+        std::cerr << "uColor not found in shader\n";
+    }
+    else {
+        glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f); // red
+    }
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLE_FAN, 0, vertexCount);
     glBindVertexArray(0);
