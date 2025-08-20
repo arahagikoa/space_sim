@@ -50,7 +50,7 @@ void Ray::draw_ray(GLuint shaderProgram) {
     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
 
     if (colorLoc != -1)
-        glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f);
+        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
 
 
     float pointPos[2] = { x, y };

@@ -21,8 +21,8 @@ class Engine {
 		GLFWwindow* window;
 		GLuint shaderProgram;
 
-		std::string fragmentShaderSourceFile = "E:/Projekty/black_hole/black_hole/shaders/frag.frag"; 
-		std::string vertexShaderSourceFile = "E:/Projekty/black_hole/black_hole/shaders/vertex.vert";
+		std::string fragmentShaderSourceFile = "./shaders/frag.frag"; 
+		std::string vertexShaderSourceFile = "./shaders/vertex.vert";
 
 		Engine(int width, int height) {
 			WIDTH = width;
@@ -38,6 +38,7 @@ class Engine {
 		
 		std::string loadShaderFile(const std::string& shaderSource);
 		GLuint CreateShaderProgram();
+		GLuint CreateShaderProgram(const char* vertexPath, const char* fragmentPath);
 
 
 };

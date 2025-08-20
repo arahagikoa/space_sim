@@ -6,9 +6,7 @@
 #include <vector>
 #include <iostream>
 
-
 #define _USE_MATH_DEFINES
-
 
 #include <cmath>
 #include <sstream>
@@ -17,9 +15,12 @@
 #include <chrono>
 #include <fstream>
 #include <sstream>
+
 #include "engine.h"
 #include "black_hole.h"
 #include "ray.h"
+#include "grid.h"
+
 
 using Clock = std::chrono::high_resolution_clock;
 double r_s = 0.0f;
@@ -140,11 +141,13 @@ int main() {
 
     if (!engine.init()) return -1;
     engine.shaderProgram = engine.CreateShaderProgram();
-
+    GLuint gridShaderProgram = engine.CreateShaderProgram("./shaders/grid.vert", "./shaders/grid.frag");
+   
+    
     //glfwSetCursorPosCallback(engine.window, cursor_position_callback);
     glfwSetMouseButtonCallback(engine.window, mouse_button_callback);
 
-
+    Grid grid(engine.WIDTH);
     BlackHole bh(0.0, 0.0, 1.0e26);
     r_s = bh.r_s;
 
@@ -166,12 +169,15 @@ int main() {
     while (!glfwWindowShouldClose(engine.window)) {
         engine.run();
         //std::cout << "Left mou pressed   " << leftMousePressed << std::endl;
+
+        grid.drawGrid(gridShaderProgram);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_DEPTH_TEST);
-        bh.drawCircle(engine.shaderProgram);
         glEnable(GL_DEPTH_TEST);
 
+        bh.drawCircle(engine.shaderProgram);
+        glDisable(GL_DEPTH_TEST);
+        
         std::vector<BlackHole> blackHoles = { bh };
         for (auto& ray : rays) {
            
