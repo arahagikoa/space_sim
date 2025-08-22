@@ -19,6 +19,7 @@
 #include "black_hole.h"
 #include "ray.h"
 #include "camera.h"
+#include "grid.h"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -118,53 +119,49 @@ int main() {
 
     if (!engine.init()) return -1;
     engine.shaderProgram = engine.CreateShaderProgram();
+    GLuint gridShaderProgram = engine.CreateShaderProgram("./shaders/grid.vert", "./shaders/grid.frag");
     setupCameraCallbacks(engine.window);
 
 
-
+    Grid grid(engine.WIDTH);
     BlackHole bh(glm::vec3(0.0f, 0.0f, 0.0f), 5.0e27);
 
 
     double dlambda = 1;
-
+    double lastTime = glfwGetTime();
+    int nbFrames = 0;
 
     while (!glfwWindowShouldClose(engine.window)) {
+
+        double currentTime = glfwGetTime();
+        nbFrames++;
+        if (currentTime - lastTime >= 1.0) { // If last prinf() was more than 1 sec ago
+            // printf and reset timer
+            printf("%f ms/frame\n", 1000.0 / double(nbFrames)); // 16.667 ms / fram -> 60 FPS
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
+
         engine.run();
-        glm::vec3 camPos = camera.get_camera_position();
 
-        glm::mat4 view = glm::lookAt(
-            camPos,                      // Camera position
-            glm::vec3(0.0f, 0.0f, 0.0f), // Look at the black hole
-            glm::vec3(0.0f, 1.0f, 0.0f)  // Up direction
-        );
+        //camera.processInput(engine.window);
 
-        glm::mat4 projection = glm::perspective(
-            glm::radians(45.0f),
-            (float)WIDTH / (float)HEIGHT,
-            0.1f,
-            1e25f
-        );
+        glm::mat4 view = camera.get_view_matrix(); // recalculating position, creating lookAt matrix
+        glm::mat4 projection = camera.projection;
+
 
         glUseProgram(engine.shaderProgram);
 
         GLuint viewLoc = glGetUniformLocation(engine.shaderProgram, "view");
         GLuint projLoc = glGetUniformLocation(engine.shaderProgram, "projection");
+
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 
         bh.drawCircle(engine.shaderProgram);
-        // bh2.drawCircle(engine.shaderProgram);
-        std::vector<BlackHole> blackHoles = { bh };
-        //for (auto& ray : rays) {
 
-        //    if (ray.r > bh.r_s) {
-        //        rk4step(ray, dlambda, blackHoles);
-        //        ray.step(bh.r_s, dlambda);
-        //    }
-        //    ray.draw_ray(engine.shaderProgram);
-        //}
-
+        camera.update();
         glfwSwapBuffers(engine.window);
         glfwPollEvents();
     }

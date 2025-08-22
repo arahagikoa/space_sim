@@ -1,5 +1,4 @@
 #pragma once
-
 #ifndef ENGINE_H
 #define ENGINE_H
 
@@ -8,7 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include <string>
 #include <fstream>
 #include <iostream>
 
@@ -36,9 +35,12 @@ public:
 	void processInput();
 	void render();
 	void cleanup();
+
+	std::string loadShaderFile(const std::string& shaderSource);
 	GLuint CreateShaderProgram();
-	std::string laodShaderFile(const std::string& shaderSource);
-	GLuint createShaderProgram();
+	GLuint CreateShaderProgram(const char* vertexPath, const char* fragmentPath);
+
 
 };
+
 #endif // !ENGINE_H
