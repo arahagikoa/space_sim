@@ -21,7 +21,6 @@ public:
 
     double c = 299792458.0;
     double G = 6.67430e-11;
-    double M_PI = 3.1415926;
 
     unsigned int indexCount;
 
@@ -34,6 +33,7 @@ private:
     int vertexCount = 0;
 
     void setupCircle();
+    bool intercept(glm::vec3 pos);
 };
 
 #endif // !BLACK_HOLE_H

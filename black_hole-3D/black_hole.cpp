@@ -115,3 +115,13 @@ void BlackHole::drawCircle(GLuint shaderProgram) {
     glDrawElements(GL_TRIANGLE_STRIP, indexCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
+
+
+bool BlackHole::intercept(glm::vec3 pos) {
+    float dx = pos.x - pos.x;
+    float dy = pos.y - pos.y;
+    float dz = pos.z - pos.z;
+    float dist2 = dx * dx + dy * dy + dz * dz;
+
+    return dist2 < r_s * r_s;
+}

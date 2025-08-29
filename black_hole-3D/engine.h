@@ -10,7 +10,8 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-
+#include <sstream>
+#include <stb_image.h>
 
 class Engine {
 
@@ -18,17 +19,19 @@ public:
 	int WIDTH;
 	int HEIGHT;
 
+	GLuint backgroundShader;
+	GLuint backgroundVAO, backgroundVBO;
+	GLuint backgroundTexture;
+
 	GLFWwindow* window;
 	GLuint shaderProgram;
 
 	std::string fragmentShaderSourceFile = "./shaders/bh.frag";
 	std::string vertexShaderSourceFile = "./shaders/bh.vert";
 
-	Engine(int width, int height) {
-		WIDTH = width;
-		HEIGHT = height;
-		window = nullptr;
-	}
+	Engine(int w, int h) : WIDTH(w), HEIGHT(h), window(nullptr),
+		shaderProgram(0), backgroundShader(0),
+		backgroundVAO(0), backgroundVBO(0), backgroundTexture(0) {}
 
 	bool init();
 	void run();
@@ -39,6 +42,9 @@ public:
 	std::string loadShaderFile(const std::string& shaderSource);
 	GLuint CreateShaderProgram();
 	GLuint CreateShaderProgram(const char* vertexPath, const char* fragmentPath);
+
+	void loadBackground(const char* imagePath, const char* vertPath, const char* fragPath);
+	void drawBackground();
 
 
 };

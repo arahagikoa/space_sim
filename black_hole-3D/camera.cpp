@@ -3,7 +3,7 @@
 
 
 Camera::Camera() {
-	baseView = glm::vec3(0.0f, 0.0f, 0.0f);
+	baseView = glm::vec3(-16.0f, 0.0f, -1.0f);;
 
 	dragging = false;
 	moving = false;
@@ -11,7 +11,7 @@ Camera::Camera() {
 	phi = 0.0;
 	theta = 3.14 / 2.0; // max theta is pi
 
-	drag_speed = 0.01f;
+	drag_speed = 0.001f;
 	radius = 100.0f; // works for e27 kg mass
 
 	last_x = baseView.x;
@@ -38,12 +38,13 @@ glm::mat4 Camera::get_view_matrix() {
 
 
 glm::vec3 Camera::get_camera_position() {
-	float clampedElevation = glm::clamp((double)theta, 0.01, 3.14 - 0.01);
+	float clampedElevation = glm::clamp((double)theta, 3.14 / 2.5, 3.14 / 1.75 - 0.01);
+	float clampedPhi = glm::clamp((double)phi, -0.3, 0.3);
 
 	glm::vec3 position = glm::vec3(
-		radius * sin(clampedElevation) * cos(phi),
+		radius * sin(clampedElevation) * cos(clampedPhi),
 		radius * cos(clampedElevation),
-		radius * sin(clampedElevation) * sin(phi));
+		radius * sin(clampedElevation) * sin(clampedPhi));
 
 	return position;
 }
@@ -70,7 +71,8 @@ void Camera::process_mouse_move(double x, double y) {
 		phi -= dx * drag_speed;
 		theta += dy * drag_speed;
 
-		theta = glm::clamp((double)theta, 0.01, 3.14 - 0.01); // dont fly too high Icarus
+		theta = glm::clamp((double)theta, 3.14 / 2.5, 3.14 / 1.75 - 0.01); // dont fly too high Icarus
+		phi = glm::clamp((double)phi, -0.3, 0.3);
 	}
 
 	last_x = x;

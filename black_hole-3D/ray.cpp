@@ -1,28 +1,29 @@
 #include "ray.h"
 
-Ray::Ray(glm::vec2 pos, glm::vec2 dir, double r_s) {
+Ray::Ray(glm::vec3 pos, glm::vec3 dir, double r_s) {
     x = pos.x;
     y = pos.y;
+    z = pos.z;
+
     this->dir = dir;
 
-    float centerX = 400.0f;
-    float centerY = 300.0f;
+    this->r = std::sqrt(x * x + y * y + z * z);
+    this->phi = std::atan2(y, x);
+    this->theta = std::acos(x / r);
 
-    float relX = x - centerX;
-    float relY = y - centerY;
+    double dx = dir.x, dy = dir.y, dz = dir.z; // for convenienve
 
-    this->r = std::sqrt(relX * relX + relY * relY);
-    this->phi = std::atan2(relY, relX);
+    dr = sin(theta) * cos(phi) * dx + sin(theta) * sin(phi) * dy + cos(theta) * dz;
+    dtheta = cos(theta) * cos(phi) * dx + cos(theta) * sin(phi) * dy - sin(theta) * dz;
+    dtheta /= r;
+    dphi = -sin(phi) * dx + cos(phi) * dy;
+    dphi /= (r * sin(theta));
 
-    float cosP = cos(phi);
-    float sinP = sin(phi);
-
-    dr = dir.x * cosP + dir.y * sinP;
-    dphi = (-dir.x * sinP + dir.y * cosP) / r;
-    L = r * r * dphi;
+    L = r * r * sin(theta) * dphi;
     double f = 1.0 - r_s / r;
-    double dt_dlambda = sqrt((dr * dr) / (f * f) + (r * r * dphi * dphi) / f);
+    double dt_dlambda = sqrt((dr * dr) / f + r * r * dtheta * dtheta + r * r * sin(theta) * sin(theta) * dphi * dphi);
     E = f * dt_dlambda;
+
 
     glGenVertexArrays(1, &VAO_point);
     glGenBuffers(1, &VBO_point);
@@ -73,19 +74,9 @@ void Ray::draw_ray(GLuint shaderProgram) {
 }
 
 void Ray::step(double r_s, double dlambda) {
-    if (this->r <= r_s) {
-        return;
-    }
+    if (this->r <= r_s) return;
 
-
-    float centerX = 400.0f;
-    float centerY = 300.0f;
-
-    x = centerX + r * cos(phi);
-    y = centerY + r * sin(phi);
-
-    trail.push_back(glm::vec2(x, y));
-    if (trail.size() > 500) {
-        trail.erase(trail.begin());
-    }
+    this->x = r * sin(theta) * cos(phi);
+    this->y = r * sin(theta) * sin(phi);
+    this->z = r * cos(theta);
 }

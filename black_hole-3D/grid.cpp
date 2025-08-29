@@ -50,10 +50,6 @@ void Grid::drawGrid(GLuint shaderProgram) {
     glUseProgram(shaderProgram);
 
 
-    GLint zLoc = glGetUniformLocation(shaderProgram, "uZ");
-
-    glUniform1f(zLoc, -0.1f);
-
     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
 
     if (colorLoc == -1) {

@@ -1,9 +1,5 @@
 #include "engine.h"
 
-#include <iostream>
-#include <sstream>
-#include<string>
-
 bool Engine::init() {
     if (!glfwInit()) {
         std::cerr << "GLFW init failed\n";
@@ -13,6 +9,7 @@ bool Engine::init() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 
 
     window = glfwCreateWindow(WIDTH, HEIGHT, "Black hole sim", nullptr, nullptr);
@@ -54,6 +51,10 @@ void Engine::run() {
 void Engine::render() {
     glClearColor(0.02f, 0.02f, 0.03f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    if (backgroundShader && backgroundTexture) {
+        drawBackground();
+    }
 }
 
 
@@ -210,4 +211,81 @@ GLuint Engine::CreateShaderProgram(const char* vertexPath, const char* fragmentP
     glDeleteShader(fragmentShader);
 
     return shaderProgram;
+}
+
+
+void Engine::loadBackground(const char* imagePath, const char* vertPath, const char* fragPath) {
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load(imagePath, &width, &height, &nrChannels, 0);
+
+    if (!data) {
+        std::cerr << "Failed to load background image: " << imagePath << std::endl;
+    }
+    else {
+        std::cout << "Loaded background image: " << width << "x" << height
+            << " channels=" << nrChannels << std::endl;
+    }
+
+    glGenTextures(1, &backgroundTexture);
+    glBindTexture(GL_TEXTURE_3D, backgroundTexture);
+
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    GLenum format = (nrChannels == 3) ? GL_RGB : GL_RGBA;
+    glTexImage2D(GL_TEXTURE_3D, 0, format, width, height, 0, format,
+        GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_3D);
+
+    stbi_image_free(data);
+
+    float quadVertices[] = {
+        // positions   // texCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,   // top-left
+        -1.0f, -1.0f,  0.0f, 0.0f,   // bottom-left
+         1.0f, -1.0f,  1.0f, 0.0f,   // bottom-right
+
+        -1.0f,  1.0f,  0.0f, 1.0f,   // top-left
+         1.0f, -1.0f,  1.0f, 0.0f,   // bottom-right
+         1.0f,  1.0f,  1.0f, 1.0f    // top-right
+    };
+
+    glGenVertexArrays(1, &backgroundVAO);
+    glGenBuffers(1, &backgroundVBO);
+
+    glBindVertexArray(backgroundVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, backgroundVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    backgroundShader = CreateShaderProgram(vertPath, fragPath);
+}
+
+
+void Engine::drawBackground() {
+    glDisable(GL_DEPTH_TEST); 
+
+    glUseProgram(backgroundShader);
+    glBindVertexArray(backgroundVAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_3D, backgroundTexture);
+
+    GLint texLoc = glGetUniformLocation(backgroundShader, "backgroundTexture");
+    glUniform1i(texLoc, 0);
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    glBindVertexArray(0);
+    glEnable(GL_DEPTH_TEST);
 }
