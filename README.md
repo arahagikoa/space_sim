@@ -100,7 +100,8 @@ This project was heavily inspired by a YouTube video showcasing how black hole s
 
 ##  Roadmap
 
-* 2D black hole gravitational lensing simulation
+* Current scope: 2D gravitational lensing (complete)
+Possible extensions:
 * 3D ray tracing for black hole visualization <----
 * Configurable parameters (mass, spin, observer position)
 * Additional celestial objects and scene rendering
