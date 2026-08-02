@@ -1,4 +1,4 @@
-#include "black_hole.h"
+#include "physics/black_hole.h"
 
 BlackHole::BlackHole(float x, float y, float m) {
     pos.x = x;
@@ -53,10 +53,11 @@ void BlackHole::setupCircle() {
 
 void BlackHole::drawCircle(GLuint shaderProgram) {
     glUseProgram(shaderProgram);
+    glVertexAttrib1f(1, 1.0f);
     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
 
     if (colorLoc == -1) {
-        std::cerr << "uColor not found in shader\n";
+        std::cerr << "uColor not found (black hole), program=" << shaderProgram << "\n";
     }
 
     else {

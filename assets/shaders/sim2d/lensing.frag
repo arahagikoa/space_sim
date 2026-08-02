@@ -1,12 +1,10 @@
 #version 330 core
-
 out vec4 FragColor;
-uniform vec3 uColor;
 
-uniform float uAlpha; 
-in float vAlpha;
+uniform vec3  uColor;
+uniform float uAlpha;   // per-draw master opacity
+in    float vAlpha;     // per-vertex fade
 
 void main() {
-    float alpha = max(uAlpha, vAlpha);  // use whichever is set
-    FragColor = vec4(uColor, alpha);
+    FragColor = vec4(uColor, uAlpha * vAlpha);
 }

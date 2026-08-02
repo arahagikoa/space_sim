@@ -1,4 +1,4 @@
-#include "camera.h"
+#include "sim2d/camera2d.h"
 
 
 
@@ -18,7 +18,7 @@ void Camera::process_mouse_buttons(int button, int action, int mods, GLFWwindow*
 	if (button == GLFW_MOUSE_BUTTON_LEFT) {
 		if (action == GLFW_PRESS) {
 
-			glfwGetCursorPos(win, &last_x, &last_y);
+			//glfwGetCursorPos(win, &last_x, &last_y);
             
 		}
 

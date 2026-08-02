@@ -15,7 +15,7 @@
 #include <sstream>
 
 
-#include "engine.h"
+#include "sim3d/app3d.h"
 #include "black_hole.h"
 #include "ray.h"
 #include "camera.h"

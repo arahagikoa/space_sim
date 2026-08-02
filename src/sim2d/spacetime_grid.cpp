@@ -1,13 +1,13 @@
-#include "sim3d/render/spacetime_grid.h"
+#include "spacetime_grid.h"
 
 
-Grid::Grid(float width) {
+SpacetimeGrid::SpacetimeGrid(int width) {
 	setupGrid(width, width);
 
 }
 
 
-void Grid::setupGrid(float WIDTH, float HEIGHT) {
+void SpacetimeGrid::setupGrid(int WIDTH, int HEIGHT) {
     std::vector<float> vertices;
 
     int gridLines = 20;
@@ -46,7 +46,7 @@ void Grid::setupGrid(float WIDTH, float HEIGHT) {
     glBindVertexArray(0);
 }
 
-void Grid::drawGrid(GLuint shaderProgram) {
+void SpacetimeGrid::drawGrid(GLuint shaderProgram) {
     glUseProgram(shaderProgram);
 
 
@@ -57,7 +57,7 @@ void Grid::drawGrid(GLuint shaderProgram) {
 	GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
 
 	if (colorLoc == -1) {
-		std::cerr << "uColor not found in shader\n";
+        std::cerr << "uColor not found (grid), program=" << shaderProgram << "\n";
 	}
 	else {
 		glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f); // idk what this color is xd

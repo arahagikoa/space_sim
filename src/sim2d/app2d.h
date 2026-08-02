@@ -21,8 +21,8 @@ class Engine {
 		GLFWwindow* window;
 		GLuint shaderProgram;
 
-		std::string fragmentShaderSourceFile = "./shaders/frag.frag"; 
-		std::string vertexShaderSourceFile = "./shaders/vertex.vert";
+		std::string fragmentShaderSourceFile = "./assets/shaders/sim2d/lensing.frag"; 
+		std::string vertexShaderSourceFile = "./assets/shaders/sim2d/lensing.vert";
 
 		Engine(int width, int height) {
 			WIDTH = width;

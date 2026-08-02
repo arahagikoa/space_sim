@@ -16,10 +16,10 @@
 #include <fstream>
 #include <sstream>
 
-#include "engine.h"
-#include "black_hole.h"
-#include "ray.h"
-#include "grid.h"
+#include "sim2d/app2d.h"
+#include "physics/black_hole.h"
+#include "sim2d/lensing/ray.h"
+#include "sim2d/spacetime_grid.h"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -141,13 +141,13 @@ int main() {
 
     if (!engine.init()) return -1;
     engine.shaderProgram = engine.CreateShaderProgram();
-    GLuint gridShaderProgram = engine.CreateShaderProgram("./shaders/grid.vert", "./shaders/grid.frag");
+    GLuint gridShaderProgram = engine.CreateShaderProgram("./assets/shaders/sim2d/grid.vert", "./assets/shaders/sim2d/grid.frag");
    
     
     //glfwSetCursorPosCallback(engine.window, cursor_position_callback);
     glfwSetMouseButtonCallback(engine.window, mouse_button_callback);
 
-    Grid grid(engine.WIDTH);
+    SpacetimeGrid SpacetimeGrid(engine.WIDTH);
     BlackHole bh(0.0, 0.0, 1.0e26);
     r_s = bh.r_s;
 
@@ -170,7 +170,7 @@ int main() {
         engine.run();
         //std::cout << "Left mou pressed   " << leftMousePressed << std::endl;
 
-        grid.drawGrid(gridShaderProgram);
+        SpacetimeGrid.drawGrid(gridShaderProgram);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_DEPTH_TEST);

@@ -1,4 +1,4 @@
-#include "ray.h"
+#include "sim2d/lensing/ray.h"
 
 Ray::Ray(glm::vec2 pos, glm::vec2 dir, double r_s) {
     x = pos.x;
@@ -39,39 +39,59 @@ Ray::Ray(glm::vec2 pos, glm::vec2 dir, double r_s) {
     glBindVertexArray(VAO_trail);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_trail);
     glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+
+    // aPos  -> floats 0,1
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    // aAlpha -> float 2
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
+        (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
 void Ray::draw_ray(GLuint shaderProgram) {
     glUseProgram(shaderProgram);
+
     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
+    GLint alphaLoc = glGetUniformLocation(shaderProgram, "uAlpha");
+    if (colorLoc != -1) glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+    if (alphaLoc != -1) glUniform1f(alphaLoc, 1.0f);
 
-    if (colorLoc != -1)
-        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+    // head marker: attribute 1 is disabled on VAO_point, so pin the
+    // generic value to 1.0 or the point renders fully transparent
+    glVertexAttrib1f(1, 1.0f);
 
-
-    float pointPos[2] = { x, y };
+    float pointPos[2] = { (float)x, (float)y };
     glBindBuffer(GL_ARRAY_BUFFER, VBO_point);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(pointPos), pointPos);
     glBindVertexArray(VAO_point);
     glPointSize(3.0f);
     glDrawArrays(GL_POINTS, 0, 1);
     glBindVertexArray(0);
-    size_t N = trail.size();
-    if (trail.size() < 2) return;
 
+    const size_t N = trail.size();
+    if (N < 2) return;
+
+    std::vector<float> verts;
+    verts.reserve(N * 3);
+    for (size_t i = 0; i < N; ++i) {
+        float t = float(i + 1) / float(N);   // 0 = tail, 1 = head
+        verts.push_back(trail[i].x);
+        verts.push_back(trail[i].y);
+        verts.push_back(t * t);              // quadratic: longer bright head
+    }
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_trail);
-    glBufferData(GL_ARRAY_BUFFER, trail.size() * sizeof(glm::vec2), trail.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(float),
+        verts.data(), GL_DYNAMIC_DRAW);
     glBindVertexArray(VAO_trail);
-    glDrawArrays(GL_LINE_STRIP, 0, trail.size());
+    glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)N);
     glBindVertexArray(0);
-    glDisable(GL_BLEND);
 }
 
 void Ray::step(double r_s, double dlambda) {
