@@ -7,23 +7,16 @@
   },
   "configurePresets": [
     {
-      "name": "default",
-      "displayName": "Ninja Multi-Config",
-      "generator": "Ninja Multi-Config",
-      "binaryDir": "${sourceDir}/build",
-      "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_TARGET_TRIPLET": "x64-windows"
-      }
-    },
-    {
       "name": "vs",
       "displayName": "Visual Studio 2022",
       "generator": "Visual Studio 17 2022",
       "architecture": "x64",
       "binaryDir": "${sourceDir}/build-vs",
+      "environment": {
+        "VCPKG_ROOT": "D:/DEV/vcpkg"
+      },
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "D:/DEV/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_TARGET_TRIPLET": "x64-windows"
       }
     }
@@ -31,21 +24,11 @@
   "buildPresets": [
     {
       "name": "debug",
-      "configurePreset": "default",
-      "configuration": "Debug"
-    },
-    {
-      "name": "release",
-      "configurePreset": "default",
-      "configuration": "Release"
-    },
-    {
-      "name": "vs-debug",
       "configurePreset": "vs",
       "configuration": "Debug"
     },
     {
-      "name": "vs-release",
+      "name": "release",
       "configurePreset": "vs",
       "configuration": "Release"
     }
