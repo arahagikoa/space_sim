@@ -16,9 +16,9 @@
 
 
 #include "sim3d/app3d.h"
-#include "black_hole.h"
-#include "ray.h"
-#include "camera.h"
+#include "physics/black_hole.h"
+#include "sim2d/lensing/ray.h"
+#include "sim3d/scene/camera.h"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -122,7 +122,7 @@ int main() {
 
 
 
-    BlackHole bh(glm::vec3(0.0f, 0.0f, 0.0f), 5.0e27);
+    BlackHole bh(0.0f, 0.0f, 5.0e27);
 
 
     double dlambda = 1;

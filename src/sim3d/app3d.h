@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef ENGINE3D_H
+#define ENGINE3D_H
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -22,8 +22,8 @@ public:
 	GLFWwindow* window;
 	GLuint shaderProgram;
 
-	std::string fragmentShaderSourceFile = "./shaders/bh.frag";
-	std::string vertexShaderSourceFile = "./shaders/bh.vert";
+	std::string fragmentShaderSourceFile = "./assets/shaders/sim3d/blackhole.frag";
+	std::string vertexShaderSourceFile = "./assets/shaders/sim3d/blackhole.vert";
 
 	Engine(int width, int height) {
 		WIDTH = width;
@@ -36,9 +36,10 @@ public:
 	void processInput();
 	void render();
 	void cleanup();
+
+	std::string loadShaderFile(const std::string& shaderSource);
 	GLuint CreateShaderProgram();
-	std::string laodShaderFile(const std::string& shaderSource);
-	GLuint createShaderProgram();
+	GLuint CreateShaderProgram(const char* vertexPath, const char* fragmentPath);
 
 };
 #endif // !ENGINE_H
