@@ -3,7 +3,14 @@
 A C++ / OpenGL project visualizing the gravitational effects of a black hole.
 
 Currently the simulation renders **2D gravitational lensing** — light rays traced through
-Schwarzschild geometry, integrated with RK4 — with a **3D simulation** in development.
+Schwarzschild geometry, integrated with RK4 — alongside a **3D real-time ray marcher**
+that integrates null geodesics per pixel on the GPU.
+
+![Gravitational lensing around a Schwarzschild black hole, with accretion disk and Flamm's paraboloid](docs/images/lensing-edge-on.png)
+
+*Null geodesics integrated per pixel with velocity Verlet. The background is NASA's
+starmap, warped by the curvature; the wireframe beneath is Flamm's paraboloid, the
+isometric embedding of the equatorial spatial slice.*
 
 ---
 
@@ -13,7 +20,12 @@ Schwarzschild geometry, integrated with RK4 — with a **3D simulation** in deve
   - Gravitational lensing via numerical geodesic integration.
   - Interactive: click anywhere to spawn a light ray.
   - Fading ray trails and a deformable spacetime grid.
-- **3D Simulation** (`sim3d`) — *work in progress, does not currently build.*
+- **3D Black Hole Ray Marcher** (`sim3d`)
+  - Per-pixel null geodesic integration in Schwarzschild spacetime.
+  - Shakura-Sunyaev accretion disk with a Planck blackbody ramp and Keplerian shear.
+  - Doppler beaming and gravitational redshift.
+  - Flamm's paraboloid rendered as a curvature grid beneath the disk.
+  - HDR pipeline: linear radiance, bloom, ACES tone mapping.
 - **Modular codebase** — rendering, physics, and program flow kept separate.
 
 ---
@@ -127,10 +139,30 @@ cmake --build --preset debug --target sim2d
 
 ### Controls
 
+**`sim2d`**
+
 | Input | Action |
 |---|---|
 | Left click | Spawn a light ray at the cursor |
 | `Esc` | Quit |
+
+**`sim3d`**
+
+| Input | Action |
+|---|---|
+| Drag / scroll | Orbit, zoom |
+| `G` | Spacetime curvature grid |
+| `D` | Doppler beaming and redshift |
+| `R` | Theoretical shadow edge at `b = √27/2 · r_s` |
+| `-` / `=` | Exposure |
+| `[` / `]` | Disk outer radius |
+| `,` / `.` | Integrator steps |
+| `1` / `2` | Black hole mass |
+| `9` / `0` | Render resolution |
+| `P` | Screenshot |
+| `Esc` | Quit |
+
+Screenshots are written next to the executable as `blackhole_<timestamp>.png`.
 
 ---
 
@@ -163,8 +195,8 @@ in *Configuration Manager*.
 ## Roadmap
 
 - [x] 2D gravitational lensing
-- [ ] 3D ray tracing for black hole visualization
-- [ ] Configurable parameters (mass, spin, observer position)
+- [x] 3D ray tracing for black hole visualization
+- [x] Configurable parameters (mass, spin, observer position)
 - [ ] Additional celestial objects and scene rendering
 - [ ] Thruster / orbital mechanics simulation
 
