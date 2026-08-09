@@ -1,7 +1,11 @@
 #version 330 core
-layout (location = 0) in vec2 aPos;
-uniform float uZ;
+layout (location = 0) in vec3 aPos;
+
+uniform mat4 uViewProj;
+
+out float vRadius;
 
 void main() {
-    gl_Position = vec4(aPos, uZ, 1.0);
+    vRadius = length(aPos.xz);
+    gl_Position = uViewProj * vec4(aPos, 1.0);
 }

@@ -1,9 +1,6 @@
 #pragma once
 #include <GL/glew.h>
 #include <string>
-
-// Equirectangular background image held as a 2D texture.
-// Sampled by direction, so it behaves as an infinitely distant sphere.
 class Skybox {
 public:
     bool load(const std::string& path);

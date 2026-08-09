@@ -30,6 +30,8 @@ add_executable(sim3d
     src/sim3d/scene/camera.cpp
     src/sim3d/render/spacetime_grid.cpp
     src/sim3d/render/skybox.cpp
+    src/sim3d/render/framebuffer.cpp
+    src/sim3d/render/screenshot.cpp
     src/sim3d/screen_quad.cpp)
 
 target_include_directories(sim3d PRIVATE ${Stb_INCLUDE_DIR})

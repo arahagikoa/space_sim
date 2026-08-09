@@ -1,7 +1,14 @@
 #version 330 core
+in  float vRadius;
 out vec4 FragColor;
-uniform vec3 uColor;
+
+uniform vec3  uColor;
+uniform float uFadeStart;   // world radius where the mesh starts dissolving
+uniform float uFadeEnd;     // and where it is gone
 
 void main() {
-    FragColor = vec4(uColor, 1.0); // full opacity
+    float fade = 1.0 - smoothstep(uFadeStart, uFadeEnd, vRadius);
+    if (fade <= 0.0) discard;
+
+    FragColor = vec4(uColor, fade);
 }

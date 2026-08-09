@@ -9,13 +9,14 @@
 
 class Camera {
 	glm::vec3 base_view;
-	glm::vec3 world_up = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	glm::vec3 f;
 	glm::vec3 r;
 	glm::vec3 u;
 
 	public:
+		glm::vec3 world_up = glm::vec3(0.0f, 1.0f, 0.0f);
+
 		double phi;
 		double theta;
 

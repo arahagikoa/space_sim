@@ -1,25 +1,16 @@
 #pragma once
 
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <cmath>
-#include <iostream>
-#include <vector>
-
 
 
 class Grid {
-	public:
-		float WIDTH;
+public:
 
-		GLuint GridVBO, GridVAO;
+    void build(float schwarzschildRadius, float outerRadius);
+    void draw() const;
+    void destroy();
 
-		int vertexCount;
-
-		Grid(float width);
-		void setupGrid(float WIDTH, float HEIGHT);
-		void drawGrid(GLuint shaderProgram);
-
-
+private:
+    GLuint  vao = 0, vbo = 0;
+    GLsizei vertexCount = 0;
 };

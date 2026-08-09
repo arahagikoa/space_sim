@@ -72,17 +72,11 @@ void Camera::process_mouse_buttons(int button, int action, int mods, GLFWwindow*
 }
 
 void Camera::process_scroll(GLFWwindow* win, double xoffset, double yoffset) {
-	// Trackpads send horizontal-only events; taking the sign by dividing by a
-	// zero magnitude would put a NaN into radius and poison every ray.
 	if (yoffset == 0.0) return;
 
-	// Zoom is perceptually a ratio, so scale the current radius. Multiplying by
-	// a signed +/-1.1 instead sends the radius negative on one scroll direction,
-	// where the clamp then pins it to the lower bound.
 	const double step = 1.1;
 	this->radius *= (yoffset > 0.0) ? (1.0 / step) : step;
 
-	// Lower bound sits just outside the photon sphere at 1.5 r_s.
 	this->radius = glm::clamp(this->radius, 2.0, 200.0);
 	//std::cout << "RADIUS: " << radius << std::endl;
 }
@@ -97,13 +91,6 @@ glm::vec3 Camera::get_right() {
 	return r;
 }
 glm::vec3 Camera::get_up() {
-	//if (this->f == nullptr) {
-	//	get_forward();
-	//}
-		
-	//if (this->r == nullptr) {
-	//	get_forward();
-	//}
 	this->u = glm::cross(this->r, this->f);
 	return u;
 }

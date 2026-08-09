@@ -1,68 +1,87 @@
 #include "sim3d/render/spacetime_grid.h"
 
+#include <cmath>
+#include <vector>
 
-Grid::Grid(float width) {
-	setupGrid(width, width);
+namespace {
 
+constexpr int RINGS    = 28;   // rings from the throat outward
+constexpr int SPOKES   = 48;   // radial lines
+constexpr int SEGMENTS = 128;  // segments per ring
+
+constexpr float TWO_PI = 6.28318530718f;
+
+float embedding_height(float r, float rs, float outer) {
+    return 2.0f * (std::sqrt(rs * (r - rs)) - std::sqrt(rs * (outer - rs)));
 }
 
+float ring_radius(int i, float rs, float outer) {
+    const float u = static_cast<float>(i) / static_cast<float>(RINGS);
+    return rs + (outer - rs) * u * u;
+}
 
-void Grid::setupGrid(float WIDTH, float HEIGHT) {
-    std::vector<float> vertices;
-
-    int gridLines = 20;
-    float stepX = 2.0 / gridLines;
-    float stepY = 2.0 / gridLines;
+} 
 
 
-    // vertical lines
-    for (int i = 0; i <= gridLines; i++) {
-        float x = - 2.0 / 2.0f + i * stepX;
-        
+void Grid::build(float schwarzschildRadius, float outerRadius) {
+    const float rs = schwarzschildRadius;
 
-        vertices.push_back(x); vertices.push_back(-HEIGHT / 2.0f);
-        vertices.push_back(x); vertices.push_back(HEIGHT / 2.0f);
+    std::vector<float> verts;
+    verts.reserve(((RINGS + 1) * SEGMENTS + SPOKES * RINGS) * 6);
+
+    auto emit = [&](float r, float angle) {
+        verts.push_back(r * std::cos(angle));
+        verts.push_back(embedding_height(r, rs, outerRadius));
+        verts.push_back(r * std::sin(angle));
+    };
+
+    for (int i = 0; i <= RINGS; ++i) {
+        const float r = ring_radius(i, rs, outerRadius);
+
+        for (int j = 0; j < SEGMENTS; ++j) {
+            emit(r, TWO_PI * j / SEGMENTS);
+            emit(r, TWO_PI * (j + 1) / SEGMENTS);
+        }
     }
 
-    // horizontal lines
-    for (int j = 0; j <= gridLines; j++) {
-        float y = -2.0 / 2.0f + j * stepY;
-        vertices.push_back(-WIDTH / 2.0f); vertices.push_back(y);
-        vertices.push_back(WIDTH / 2.0f); vertices.push_back(y); 
+    for (int k = 0; k < SPOKES; ++k) {
+        const float angle = TWO_PI * k / SPOKES;
+
+        for (int i = 0; i < RINGS; ++i) {
+            emit(ring_radius(i, rs, outerRadius), angle);
+            emit(ring_radius(i + 1, rs, outerRadius), angle);
+        }
     }
 
-    vertexCount = vertices.size() / 2;
+    vertexCount = static_cast<GLsizei>(verts.size() / 3);
 
-    glGenVertexArrays(1, &GridVAO);
-    glGenBuffers(1, &GridVBO);
-    glBindVertexArray(GridVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, GridVBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    if (!vao) {
+        glGenVertexArrays(1, &vao);
+        glGenBuffers(1, &vbo);
+    }
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(float), verts.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
-void Grid::drawGrid(GLuint shaderProgram) {
-    glUseProgram(shaderProgram);
 
-
-    GLint zLoc = glGetUniformLocation(shaderProgram, "uZ");
-
-    glUniform1f(zLoc, -0.1f);
-
-	GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
-
-	if (colorLoc == -1) {
-		std::cerr << "uColor not found in shader\n";
-	}
-	else {
-		glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f); // idk what this color is xd
-	}
-	glBindVertexArray(GridVAO);
+void Grid::draw() const {
+    glBindVertexArray(vao);
     glDrawArrays(GL_LINES, 0, vertexCount);
-	glBindVertexArray(0);
+    glBindVertexArray(0);
+}
+
+
+void Grid::destroy() {
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
+    vao = vbo = 0;
+    vertexCount = 0;
 }
