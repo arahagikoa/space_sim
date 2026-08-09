@@ -16,8 +16,8 @@
 class Engine {
 
 public:
-	int WIDTH;
-	int HEIGHT;
+	float WIDTH;
+	float HEIGHT;
 
 	GLFWwindow* window;
 	GLuint shaderProgram;
@@ -25,7 +25,7 @@ public:
 	std::string fragmentShaderSourceFile = "./assets/shaders/sim3d/blackhole.frag";
 	std::string vertexShaderSourceFile = "./assets/shaders/sim3d/blackhole.vert";
 
-	Engine(int width, int height) {
+	Engine(float width, float height) {
 		WIDTH = width;
 		HEIGHT = height;
 		window = nullptr;

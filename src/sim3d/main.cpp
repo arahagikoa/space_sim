@@ -19,6 +19,7 @@
 #include "physics/black_hole.h"
 #include "sim2d/lensing/ray.h"
 #include "sim3d/scene/camera.h"
+#include "sim3d/screen_quad.h"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -28,8 +29,8 @@ void addState(const double a[4], const double b[4], double factor, double out[4]
 void rk4step(Ray& ray, double dlambda, const std::vector<BlackHole>& bhs);
 void setupCameraCallbacks(GLFWwindow* window);
 
-int WIDTH = 600;
-int HEIGHT = 600;
+float WIDTH = 600.0;
+float HEIGHT = 600.0;
 
 std::vector<Ray> rays;
 
@@ -48,6 +49,8 @@ void setupCameraCallbacks(GLFWwindow* window) {
         Camera* cam = (Camera*)glfwGetWindowUserPointer(win);
         cam->process_mouse_move(x, y);
         });
+
+    std::cout << "Properly setup camera!" << std::endl;
 }
 
 
@@ -113,62 +116,44 @@ void rk4step(Ray& ray, double dlambda, const std::vector<BlackHole>& bhs) {
 
 int main() {
     Engine engine(WIDTH, HEIGHT);
-
-
-
     if (!engine.init()) return -1;
-    engine.shaderProgram = engine.CreateShaderProgram();
+    
     setupCameraCallbacks(engine.window);
 
+    GLuint quadProgram = engine.CreateShaderProgram(
+        "./assets/shaders/sim3d/quad.vert",
+        "./assets/shaders/sim3d/quad.frag");
 
+    ScreenQuad quad;
+    quad.init();
 
-    BlackHole bh(0.0f, 0.0f, 5.0e27);
-
-
-    double dlambda = 1;
-
+    glDisable(GL_DEPTH_TEST);
 
     while (!glfwWindowShouldClose(engine.window)) {
         engine.run();
         glm::vec3 camPos = camera.get_camera_position();
 
-        glm::mat4 view = glm::lookAt(
-            camPos,                      // Camera position
-            glm::vec3(0.0f, 0.0f, 0.0f), // Look at the black hole
-            glm::vec3(0.0f, 1.0f, 0.0f)  // Up direction
-        );
+        glUseProgram(quadProgram);
+        glm::mat3 basis(camera.get_right(), camera.get_up(), camera.get_forward());
 
-        glm::mat4 projection = glm::perspective(
-            glm::radians(45.0f),
-            (float)WIDTH / (float)HEIGHT,
-            0.1f,
-            1e25f
-        );
-
-        glUseProgram(engine.shaderProgram);
-
-        GLuint viewLoc = glGetUniformLocation(engine.shaderProgram, "view");
-        GLuint projLoc = glGetUniformLocation(engine.shaderProgram, "projection");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+        GLint AspectLoc = glGetUniformLocation(quadProgram, "aspect_ratio");
+        GLint fovLoc = glGetUniformLocation(quadProgram, "uFovY");
+        GLint cameraPosLoc = glGetUniformLocation(quadProgram, "cameraPos");
+        GLint basisLoc = glGetUniformLocation(quadProgram, "basis");
 
 
-        bh.drawCircle(engine.shaderProgram);
-        // bh2.drawCircle(engine.shaderProgram);
-        std::vector<BlackHole> blackHoles = { bh };
-        //for (auto& ray : rays) {
+        glUniformMatrix3fv(basisLoc, 1, GL_FALSE, glm::value_ptr(basis));
+        glUniform3f(cameraPosLoc, camPos.x / WIDTH, camPos.y / HEIGHT, 1.0f);
+        glUniform1f(AspectLoc, WIDTH / HEIGHT);
+        glUniform1f(fovLoc, 90);
 
-        //    if (ray.r > bh.r_s) {
-        //        rk4step(ray, dlambda, blackHoles);
-        //        ray.step(bh.r_s, dlambda);
-        //    }
-        //    ray.draw_ray(engine.shaderProgram);
-        //}
+        quad.draw();
 
         glfwSwapBuffers(engine.window);
         glfwPollEvents();
     }
 
+    quad.destroy();
     engine.cleanup();
     return 0;
 }

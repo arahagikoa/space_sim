@@ -27,7 +27,8 @@ add_executable(sim3d
     src/sim3d/main.cpp
     src/sim3d/app3d.cpp
     src/sim3d/scene/camera.cpp
-    src/sim3d/render/spacetime_grid.cpp "src/sim3d/screenquad.cpp")
+    src/sim3d/render/spacetime_grid.cpp
+    src/sim3d/screen_quad.cpp)
 
 foreach(tgt sim2d sim3d)
     target_include_directories(${tgt} PRIVATE ${CMAKE_SOURCE_DIR}/src)

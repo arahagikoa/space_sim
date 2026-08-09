@@ -63,19 +63,17 @@ void Engine::cleanup() {
 
 }
 
-std::string Engine::loadShaderFile(const std::string& shaderSource){
-    std::string result = "";
-    std::string line = "";
+std::string Engine::loadShaderFile(const std::string& shaderSource) {
     std::ifstream file(shaderSource.c_str());
-
-    if (file.is_open()){
-        while(std::getline(file, line)){
-            result += line + '\n';
-        }
-
-        file.close();
+    if (!file.is_open()) {
+        std::cerr << "Failed to open shader file: " << shaderSource << "\n";
+        return "";
     }
+    std::cout << "Open shader file: " << shaderSource << "\n";
 
+    std::string result, line;
+    while (std::getline(file, line)) result += line + '\n';
+    file.close();
     return result;
 }
 
@@ -83,6 +81,11 @@ std::string Engine::loadShaderFile(const std::string& shaderSource){
 GLuint Engine::CreateShaderProgram() {
     std::string fragmentShaderSource = loadShaderFile(this->fragmentShaderSourceFile);
     std::string vertexShaderSource = loadShaderFile(this->vertexShaderSourceFile);
+
+    if (vertexShaderSource.empty() || fragmentShaderSource.empty()) {
+        std::cerr << "Shader source empty - aborting program creation\n";
+        return 0;
+    }
 
     // --- Debug: print the sources being compiled ---
     std::cout << "\n--- Vertex Shader Source ---\n"
@@ -151,6 +154,11 @@ GLuint Engine::CreateShaderProgram() {
 GLuint Engine::CreateShaderProgram(const char* vertexPath, const char* fragmentPath) {
     std::string fragmentShaderSource = loadShaderFile(fragmentPath);
     std::string vertexShaderSource = loadShaderFile(vertexPath);
+
+    if (vertexShaderSource.empty() || fragmentShaderSource.empty()) {
+        std::cerr << "Shader source empty - aborting program creation\n";
+        return 0;
+    }
 
     // --- Debug: print the sources being compiled ---
     std::cout << "\n--- Vertex Shader Source ---\n"

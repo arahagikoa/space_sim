@@ -9,6 +9,11 @@
 
 class Camera {
 	glm::vec3 base_view;
+	glm::vec3 world_up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	glm::vec3 f;
+	glm::vec3 r;
+	glm::vec3 u;
 
 	public:
 		double phi;
@@ -26,6 +31,12 @@ class Camera {
 		void update();
 		void process_mouse_move(double x, double y);
 		void process_mouse_buttons(int button, int action, int mods, GLFWwindow* win);
+
+		// Proces UV
+		glm::vec3 get_forward();
+		glm::vec3 get_right();
+		glm::vec3 get_up();
+
 
 };
 

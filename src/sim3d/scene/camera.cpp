@@ -14,7 +14,6 @@ Camera::Camera() {
 
 	last_x = base_view.x;
 	last_y = base_view.y;
-
 }
 
 void Camera::update() {
@@ -33,11 +32,9 @@ glm::vec3 Camera::get_camera_position() {
 	// Orbit around (0,0,0) always
 
 	glm::vec3 position = glm::vec3(
-		radius * sin(clampedElevation) * cos(theta),
+		radius * sin(clampedElevation) * cos(phi),
 		radius * cos(clampedElevation),
-		radius * sin(clampedElevation) * sin(theta));
-	
-	//std::cout << "Position: " << position.x << std::endl;
+		radius * sin(clampedElevation) * sin(phi));
 
 	return position;
 }
@@ -72,4 +69,26 @@ void Camera::process_mouse_buttons(int button, int action, int mods, GLFWwindow*
 			dragging = false;
 		}
 	}
+}
+
+
+glm::vec3 Camera::get_forward() {
+	glm::vec3 camPos = get_camera_position();
+	this->f = glm::normalize(glm::vec3(-camPos.x, -camPos.y, -camPos.z));
+	return f;
+}
+glm::vec3 Camera::get_right() {
+	this->r = glm::normalize(glm::cross(f, world_up));
+	return r;
+}
+glm::vec3 Camera::get_up() {
+	//if (this->f == nullptr) {
+	//	get_forward();
+	//}
+		
+	//if (this->r == nullptr) {
+	//	get_forward();
+	//}
+	this->u = glm::cross(this->r, this->f);
+	return u;
 }
