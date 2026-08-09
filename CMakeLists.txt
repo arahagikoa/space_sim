@@ -9,6 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(GLEW  CONFIG REQUIRED)
 find_package(glm   CONFIG REQUIRED)
+find_package(Stb   REQUIRED)
 
 set(PHYSICS_SOURCES
     src/physics/black_hole.cpp
@@ -28,7 +29,10 @@ add_executable(sim3d
     src/sim3d/app3d.cpp
     src/sim3d/scene/camera.cpp
     src/sim3d/render/spacetime_grid.cpp
+    src/sim3d/render/skybox.cpp
     src/sim3d/screen_quad.cpp)
+
+target_include_directories(sim3d PRIVATE ${Stb_INCLUDE_DIR})
 
 foreach(tgt sim2d sim3d)
     target_include_directories(${tgt} PRIVATE ${CMAKE_SOURCE_DIR}/src)

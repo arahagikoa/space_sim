@@ -31,7 +31,7 @@ class Camera {
 		void update();
 		void process_mouse_move(double x, double y);
 		void process_mouse_buttons(int button, int action, int mods, GLFWwindow* win);
-
+		void process_scroll(GLFWwindow* win, double xoffset, double yoffset);
 		// Proces UV
 		glm::vec3 get_forward();
 		glm::vec3 get_right();

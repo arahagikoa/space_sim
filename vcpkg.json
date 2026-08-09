@@ -4,7 +4,8 @@
   "dependencies": [
     "glfw3",
     "glew",
-    "glm"
+    "glm",
+    "stb"
   ],
   "builtin-baseline": "8586ecbf125a36cb372920bc58ea7e23ad83776c"
 }

@@ -20,6 +20,7 @@
 #include "sim2d/lensing/ray.h"
 #include "sim3d/scene/camera.h"
 #include "sim3d/screen_quad.h"
+#include "sim3d/render/skybox.h"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -31,6 +32,11 @@ void setupCameraCallbacks(GLFWwindow* window);
 
 float WIDTH = 600.0;
 float HEIGHT = 600.0;
+
+// Geometrised units: the Schwarzschild radius is 1. For a non-spinning hole the
+// innermost stable circular orbit sits at 3 r_s, which is where a real disk ends.
+constexpr float DISK_INNER = 3.0f;
+constexpr float DISK_OUTER = 12.0f;
 
 std::vector<Ray> rays;
 
@@ -48,6 +54,11 @@ void setupCameraCallbacks(GLFWwindow* window) {
     glfwSetCursorPosCallback(window, [](GLFWwindow* win, double x, double y) {
         Camera* cam = (Camera*)glfwGetWindowUserPointer(win);
         cam->process_mouse_move(x, y);
+        });
+
+    glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
+        Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
+        camera->process_scroll(window, xoffset, yoffset);
         });
 
     std::cout << "Properly setup camera!" << std::endl;
@@ -127,23 +138,41 @@ int main() {
     ScreenQuad quad;
     quad.init();
 
+    Skybox sky;
+    if (!sky.load("./assets/images/starmap_2020_4k.png")) return -1;
+
     glDisable(GL_DEPTH_TEST);
+
+    // Frame the disk: far enough out to see the whole annulus at 90 degrees.
+    camera.radius = 30.0;
+
+    glUseProgram(quadProgram);
+    const GLint AspectLoc  = glGetUniformLocation(quadProgram, "aspect_ratio");
+    const GLint fovLoc     = glGetUniformLocation(quadProgram, "uFovY");
+    const GLint basisLoc   = glGetUniformLocation(quadProgram, "basis");
+    const GLint skyLoc     = glGetUniformLocation(quadProgram, "uSky");
+    const GLint camPosLoc  = glGetUniformLocation(quadProgram, "cameraPos");
+    const GLint innerLoc   = glGetUniformLocation(quadProgram, "uDiskInner");
+    const GLint outerLoc   = glGetUniformLocation(quadProgram, "uDiskOuter");
+
+    glUniform1i(skyLoc, 0);
+    glUniform1f(innerLoc, DISK_INNER);
+    glUniform1f(outerLoc, DISK_OUTER);
 
     while (!glfwWindowShouldClose(engine.window)) {
         engine.run();
+
         glm::vec3 camPos = camera.get_camera_position();
+        glm::vec3 frwd = camera.get_forward();
+        glm::vec3 right = camera.get_right();
+        glm::vec3 up = camera.get_up();
+        glm::mat3 basis(right, up, frwd);
 
         glUseProgram(quadProgram);
-        glm::mat3 basis(camera.get_right(), camera.get_up(), camera.get_forward());
-
-        GLint AspectLoc = glGetUniformLocation(quadProgram, "aspect_ratio");
-        GLint fovLoc = glGetUniformLocation(quadProgram, "uFovY");
-        GLint cameraPosLoc = glGetUniformLocation(quadProgram, "cameraPos");
-        GLint basisLoc = glGetUniformLocation(quadProgram, "basis");
-
+        sky.bind(0);
 
         glUniformMatrix3fv(basisLoc, 1, GL_FALSE, glm::value_ptr(basis));
-        glUniform3f(cameraPosLoc, camPos.x / WIDTH, camPos.y / HEIGHT, 1.0f);
+        glUniform3fv(camPosLoc, 1, glm::value_ptr(camPos));
         glUniform1f(AspectLoc, WIDTH / HEIGHT);
         glUniform1f(fovLoc, 90);
 
@@ -153,6 +182,7 @@ int main() {
         glfwPollEvents();
     }
 
+    sky.destroy();
     quad.destroy();
     engine.cleanup();
     return 0;
